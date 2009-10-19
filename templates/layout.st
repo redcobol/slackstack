@@ -5,7 +5,8 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>$ title $</title>
-    <link rel="StyleSheet" href="stylesheets/slack.css" type="text/css">
+    <link rel="StyleSheet" href="stylesheets/slack.css" type="text/css" />
+    <link rel="icon" href="images/favicon.png" type="image/png" />
 </head>
 <body>
     $ header() $
