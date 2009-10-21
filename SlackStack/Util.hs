@@ -6,12 +6,10 @@ module SlackStack.Util where
 import Happstack.Server
 import Happstack.Util.Common
 
-import Data.Monoid
 import Control.Monad
-import Control.Monad.Trans
+import Control.Monad.Trans (lift,liftIO)
 import Control.Applicative
 
-import System.Process
 import Data.Maybe (fromJust)
 
 import Text.StringTemplate
@@ -21,6 +19,12 @@ import Web.Encodings (encodeHtml, encodeUrl)
 import Safe (readMay)
 
 import Database.HDBC
+import qualified Data.Map as M
+
+import System.Random (randomRIO)
+import Numeric (showHex)
+
+import System.Environment (getEnv)
 
 asContentType :: String -> Response -> Response
 asContentType cType res = res { rsHeaders = headers } where
@@ -114,3 +118,26 @@ instance (MayReadString a, MayReadString b) => MayReadString (a,b)
 
 sqlAsString :: SqlValue -> String
 sqlAsString value = fromSql value
+
+quickMap :: IConnection conn => conn ->
+    String -> [SqlValue] -> IO [M.Map String SqlValue]
+quickMap dbh query params = do
+    sth <- prepare dbh query
+    execute sth []
+    fetchAllRowsMap sth
+
+quickMap' :: IConnection conn => conn ->
+    String -> [SqlValue] -> IO [M.Map String SqlValue]
+quickMap' dbh query params = do
+    sth <- prepare dbh query
+    execute sth []
+    fetchAllRowsMap' sth
+
+randHex :: Integral a => a -> IO String
+randHex size = (flip showHex $ "")
+    <$> randomRIO (0, 2 ^ size :: Integer)
+
+currentURI :: IO String
+currentURI = liftA2 (++)
+    (getEnv "HTTP_HOST")
+    (getEnv "REQUEST_URI")
