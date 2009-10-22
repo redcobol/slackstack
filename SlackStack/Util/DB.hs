@@ -1,4 +1,7 @@
-module SlackStack.Util.DB where
+module SlackStack.Util.DB (
+    module Database.HDBC,
+    sqlAsString, rowMaps, rowMaps', rowMap, rowList
+) where
 
 import Database.HDBC
 import qualified Data.Map as M

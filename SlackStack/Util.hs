@@ -3,8 +3,6 @@
 
 module SlackStack.Util where
 
-import qualified SlackStack.Util.DB as DB
-
 import Happstack.Server
 import Happstack.Util.Common
 
@@ -24,8 +22,6 @@ import qualified Data.Map as M
 
 import System.Random (randomRIO)
 import Numeric (showHex)
-
-import System.Environment (getEnv)
 
 asContentType :: String -> Response -> Response
 asContentType cType res = res { rsHeaders = headers } where
@@ -100,8 +96,6 @@ renderPage layout page attr = do
 class (Read a) => MayReadString a where
     mayReadString :: String -> Maybe a
     mayReadString = readMay
-    read :: String -> a
-    read = fromJust . mayReadString
 
 instance MayReadString Int 
 instance MayReadString Double 
@@ -120,8 +114,3 @@ instance (MayReadString a, MayReadString b) => MayReadString (a,b)
 randHex :: Integral a => a -> IO String
 randHex size = (flip showHex $ "")
     <$> randomRIO (0, 2 ^ size :: Integer)
-
-currentURI :: IO String
-currentURI = liftA2 (++)
-    (getEnv "HTTP_HOST")
-    (getEnv "REQUEST_URI")

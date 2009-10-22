@@ -26,3 +26,15 @@ create table media_map (
     post_id integer,
     media_id integer
 );
+
+create table openid_sessions (
+    id text unique,
+    addr text,
+    session text
+);
+
+create table sessions (
+    id text unique,
+    addr text,
+    identity text
+);
