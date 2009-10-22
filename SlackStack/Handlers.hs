@@ -3,7 +3,6 @@ import SlackStack.Util
 import qualified SlackStack.Util.DB as DB
 
 import Data.Maybe (fromJust,isJust)
-import System.Environment (getEnv)
 
 import Happstack.Server
 import Web.Encodings (encodeHtml, encodeUrl)
@@ -11,6 +10,7 @@ import Control.Monad
 import Control.Monad.Trans (lift,liftIO)
 import Control.Applicative
 import qualified Data.Map as M
+import Data.ByteString.UTF8 (toString)
 
 import qualified Network.OpenID.Easy as ID
 
@@ -31,16 +31,16 @@ handlers root dbh = msum [
             sessionID <- liftIO $ randHex 256
             addCookie (60*60*24*7) $ mkCookie "session" sessionID
             
-            returnTo <- liftIO $
-                ("http://" ++) . (++ "/openid") <$> getEnv "HTTP_HOST"
+            host <- toString . fromJust <$> getHeaderM "Host"
+            let returnTo = "http://" ++ host ++ "/openid"
             session <- liftIO $ ID.auth ID.config identity returnTo
             
-            addr <- liftIO $ getEnv "REMOTE_ADDR"
+            peerAddr <- fst <$> rqPeer <$> askRq
             liftIO $ DB.run dbh
                     "insert into openid_sessions \
                     \ (id, addr, session) \
                     \ values (?, ?, ?)"
-                $ map DB.toSql [ sessionID, addr, show session ]
+                $ map DB.toSql [ sessionID, peerAddr, show session ]
             
             setHeaderM "Location" $ ID.sAuthURI session
             return $ toResponse
@@ -51,16 +51,16 @@ handlers root dbh = msum [
             sessionID <- fromJust <$> maybeCookie "session"
                 :: (ServerMonad m, MonadPlus m, Functor m) => m String
             
-            addr <- liftIO $ getEnv "REMOTE_ADDR"
+            peerAddr <- fst <$> rqPeer <$> askRq
             identity <- fromJust <$> maybeLook "openid.identity"
             
             session <- liftIO $ read . DB.fromSql . head . fromJust
                 <$> (DB.rowList dbh
                     "select session from openid_sessions \
                     \ where identity = ? and addr = ?"
-                    $ map DB.toSql [identity,addr])
+                    $ map DB.toSql [identity,peerAddr])
             
-            uri <- liftIO $ getEnv "REQUEST_URI"
+            uri <- rqUri <$> askRq
             liftIO $ ID.verify ID.config session uri
             
             liftIO $ DB.run dbh
@@ -69,7 +69,7 @@ handlers root dbh = msum [
             
             liftIO $ DB.run dbh
                 "insert into sessions (id,addr,identity) values (?,?,?)"
-                [DB.toSql sessionID, DB.toSql addr, DB.toSql identity]
+                [DB.toSql sessionID, DB.toSql peerAddr, DB.toSql identity]
             
             setHeaderM "Location" "/"
             return $ toResponse "Forwarding to /"
