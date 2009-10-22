@@ -3,6 +3,8 @@
 
 module SlackStack.Util where
 
+import qualified SlackStack.Util.DB as DB
+
 import Happstack.Server
 import Happstack.Util.Common
 
@@ -18,7 +20,6 @@ import Text.StringTemplate.Helpers
 import Web.Encodings (encodeHtml, encodeUrl)
 import Safe (readMay)
 
-import Database.HDBC
 import qualified Data.Map as M
 
 import System.Random (randomRIO)
@@ -115,23 +116,6 @@ instance MayReadString String where
 
 instance (MayReadString a) => MayReadString [a]
 instance (MayReadString a, MayReadString b) => MayReadString (a,b)
-
-sqlAsString :: SqlValue -> String
-sqlAsString value = fromSql value
-
-quickMap :: IConnection conn => conn ->
-    String -> [SqlValue] -> IO [M.Map String SqlValue]
-quickMap dbh query params = do
-    sth <- prepare dbh query
-    execute sth []
-    fetchAllRowsMap sth
-
-quickMap' :: IConnection conn => conn ->
-    String -> [SqlValue] -> IO [M.Map String SqlValue]
-quickMap' dbh query params = do
-    sth <- prepare dbh query
-    execute sth []
-    fetchAllRowsMap' sth
 
 randHex :: Integral a => a -> IO String
 randHex size = (flip showHex $ "")
