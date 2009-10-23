@@ -81,7 +81,23 @@ handlers root dbh = msum [
             
             liftIO $ DB.commit dbh
             
-            found "/" $ toResponse "Forwarding to main page"
+            found (root ++ "/") $ toResponse "Forwarding to main page"
+        ,
+        do
+            uri <- rqUri <$> askRq
+            sessionID <- fromJust <$> (`mplus` Just "")
+                <$> maybeCookieValue "session"
+            -- put the session id in there to prevent people from linking to
+            -- /logout/ in images or what-not
+            if uri == "/logout/" ++ sessionID
+                then do
+                    liftIO $ do
+                        DB.run dbh
+                            "delete from sessions where id = ?"
+                            [DB.toSql sessionID]
+                        DB.commit dbh
+                    found "/" $ toResponse "Logged out"
+                else mzero
         ,
         methodSP GET $ postList root dbh,
         fileServe ["index.html"] "static"
@@ -92,21 +108,27 @@ postList :: DB.IConnection conn =>
 postList root dbh = do
     posts <- liftIO $ DB.rowMaps dbh
         "select * from posts order by timestamp desc" []
+    mIdentity <- getIdentity dbh
+    sessionID <- fromJust <$> (`mplus` Just "")
+        <$> maybeCookieValue "session"
     
+    renderPage (layout root) "post-list" [
+            "title" ==> "The Universe of Discord",
+            "posts" ==> map (M.map DB.sqlAsString) posts,
+            "categories" ==> ["comics", "blog"],
+            "identity" ==> fromJust mIdentity,
+            "authed" ==> isJust mIdentity,
+            "sessionID" ==> sessionID
+        ]
+
+getIdentity :: DB.IConnection conn =>
+    conn -> ServerPartT IO (Maybe String)
+getIdentity dbh = do
     peerAddr <- fst <$> rqPeer <$> askRq
-    sessionID <- fromJust <$> (`mplus` Just "") <$> maybeCookieValue "session"
+    sessionID <- fromJust <$> (`mplus` Just "")
+        <$> maybeCookieValue "session"
     
-    mIdentity <- liftIO $ DB.rowList dbh
+    liftIO $ (Just (DB.fromSql . head) <*>) <$> DB.rowList dbh
         "select identity from sessions \
         \ where id = ? and addr = ?"
         [DB.toSql sessionID, DB.toSql peerAddr]
-    let
-        identity = case mIdentity of
-            Nothing -> "anonymous"
-            Just x -> DB.fromSql $ head x
-    
-    renderPage (layout root) "post-list" [
-            "title" ==> "The Universe of Discord: " ++ identity,
-            "posts" ==> map (M.map DB.sqlAsString) posts,
-            "categories" ==> ["comics", "blog"]
-        ]
