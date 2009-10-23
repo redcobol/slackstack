@@ -16,9 +16,14 @@
     $endif$
     
     <dl>
+    $if(isRoot)$
+        <dt>
+            <a href="$ blogroot $/admin/$ it $">admin</a>
+        </dt>
+    $endif$
     $categories:{
         <dt>
-            <a href="$ blogRoot $/category/$ it $">$ it $</a>
+            <a href="$ blogroot $/category/$ it $">$ it $</a>
         </dt>
     }$
     </dl>

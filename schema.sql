@@ -43,4 +43,4 @@ create table access (
     identity text,
     level integer
 );
-insert into access (identity, level) values ('http://substack.myopenid.com/',0);
+insert into access (identity, level) values ('http://substack.myopenid.com',0);
