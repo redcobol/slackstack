@@ -1,5 +1,5 @@
 <div id="sidebar">
-    $if(authed)$
+    $if(isAuthed)$
         <p id="openid">
             authenticated as
             <br />

@@ -38,3 +38,9 @@ create table sessions (
     addr text,
     identity text
 );
+
+create table access (
+    identity text,
+    level integer
+);
+insert into access (identity, level) values ('http://substack.myopenid.com/',0);

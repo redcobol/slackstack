@@ -111,24 +111,40 @@ postList root dbh = do
     mIdentity <- getIdentity dbh
     sessionID <- fromJust <$> (`mplus` Just "")
         <$> maybeCookieValue "session"
+    let (identity,level) = fromJust mIdentity
     
     renderPage (layout root) "post-list" [
             "title" ==> "The Universe of Discord",
             "posts" ==> map (M.map DB.sqlAsString) posts,
             "categories" ==> ["comics", "blog"],
-            "identity" ==> fromJust mIdentity,
-            "authed" ==> isJust mIdentity,
+            "identity" ==> identity,
+            "isRoot" ==> level == Root,
+            "isAuthed" ==> isJust mIdentity,
             "sessionID" ==> sessionID
         ]
 
+data Access = Root | User
+    deriving (Show,Eq)
+accessLevel :: Int -> Access
+accessLevel 0 = Root
+accessLevel _ = User
+
 getIdentity :: DB.IConnection conn =>
-    conn -> ServerPartT IO (Maybe String)
+    conn -> ServerPartT IO (Maybe (String,Access))
 getIdentity dbh = do
     peerAddr <- fst <$> rqPeer <$> askRq
     sessionID <- fromJust <$> (`mplus` Just "")
         <$> maybeCookieValue "session"
-    
-    liftIO $ (Just (DB.fromSql . head) <*>) <$> DB.rowList dbh
-        "select identity from sessions \
+    row <- liftIO $ DB.rowList dbh
+        "select sessions.identity from sessions \
         \ where id = ? and addr = ?"
         [DB.toSql sessionID, DB.toSql peerAddr]
+    case row of
+        Nothing -> return Nothing
+        Just [identity] -> do
+            row <- liftIO $ DB.rowList dbh
+                "select level from access where identity = ?"
+                [identity]
+            return . Just . ((,) $ DB.fromSql identity) $ case row of
+                Nothing -> User
+                Just [level] -> accessLevel $ DB.fromSql level
