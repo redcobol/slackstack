@@ -6,6 +6,8 @@ module SlackStack.Util where
 import Happstack.Server
 import Happstack.Util.Common
 
+import qualified SlackStack.Util.DB as DB
+
 import Control.Monad
 import Control.Monad.Trans (lift,liftIO)
 import Control.Applicative
@@ -19,6 +21,7 @@ import Web.Encodings (encodeHtml, encodeUrl)
 import Safe (readMay)
 
 import qualified Data.Map as M
+import Data.Maybe (isJust)
 
 import System.Random (randomRIO)
 import Numeric (showHex)
@@ -79,31 +82,6 @@ maybeCookieValue name = do
         Nothing -> Nothing
         Just x -> Just $ cookieValue x
 
-data Layout = Layout {
-    blogRoot :: String,
-    layoutPage :: String,
-    templateDir :: String,
-    pageDir :: String
-}
-
--- render a page as a response given its template name in templates/pages/
--- and a list of attribute setters defined with (==>)
-renderPage :: Layout -> String ->
-    [ (StringTemplate String -> StringTemplate String) ] ->
-    ServerPartT IO Response
-renderPage layout page attr = do
-    templates <- lift $ directoryGroup (templateDir layout)
-    pages <- lift $ directoryGroup (pageDir layout)
-    let
-        pageT = fromJust $ getStringTemplate page pages
-        layoutT = fromJust $ getStringTemplate (layoutPage layout) templates
-        rendered = render $ foldl1 (.) attr pageT
-        attr' =
-            ("content" ==> rendered) .
-            ("blogRoot" ==> blogRoot layout) .
-            foldl1 (.) attr
-    return $ asHTML $ toResponse $ render $ attr' layoutT
-
 class (Read a) => MayReadString a where
     mayReadString :: String -> Maybe a
     mayReadString = readMay
@@ -125,3 +103,73 @@ instance (MayReadString a, MayReadString b) => MayReadString (a,b)
 randHex :: Integral a => a -> IO String
 randHex size = (flip showHex $ "")
     <$> randomRIO (0, 2 ^ size :: Integer)
+
+-- access stuff...
+data Access = Root | User
+    deriving (Show,Eq)
+accessLevel :: Int -> Access
+accessLevel 0 = Root
+accessLevel _ = User
+
+getIdentity :: DB.IConnection conn =>
+    conn -> ServerPartT IO (Maybe (String,Access))
+getIdentity dbh = do
+    peerAddr <- fst <$> rqPeer <$> askRq
+    sessionID <- fromJust <$> (`mplus` Just "")
+        <$> maybeCookieValue "session"
+    row <- liftIO $ DB.rowList dbh
+        "select sessions.identity from sessions \
+        \ where id = ? and addr = ?"
+        [DB.toSql sessionID, DB.toSql peerAddr]
+    case row of
+        Nothing -> return Nothing
+        Just [identity] -> do
+            row <- liftIO $ DB.rowList dbh
+                "select level from access where identity = ?"
+                [identity]
+            return . Just . ((,) $ DB.fromSql identity) $ case row of
+                Nothing -> User
+                Just [level] -> accessLevel $ DB.fromSql level
+
+-- display helpers...
+data Layout = Layout {
+    blogRoot :: String,
+    layoutPage :: String,
+    templateDir :: String,
+    pageDir :: String
+}
+
+-- render a page as a response given its template name in templates/pages/
+-- and a list of attribute setters defined with (==>)
+renderPage :: DB.IConnection conn =>
+    conn -> Layout -> String ->
+    [ (StringTemplate String -> StringTemplate String) ] ->
+    ServerPartT IO Response
+renderPage dbh layout page attr = do
+    templates <- lift $ directoryGroup (templateDir layout)
+    pages <- lift $ directoryGroup (pageDir layout)
+    categories <- liftIO $ map DB.sqlAsString . fromJust
+        <$> (`mplus` Just [])
+        <$> DB.rowList dbh "select title from categories" []
+    
+    mIdentity <- getIdentity dbh
+    sessionID <- fromJust <$> (`mplus` Just "")
+        <$> maybeCookieValue "session"
+    let (identity,level) = fromJust $ mIdentity `mplus` Just ("anonymous",User)
+    
+    let
+        pageT = fromJust $ getStringTemplate page pages
+        layoutT = fromJust $ getStringTemplate (layoutPage layout) templates
+        rendered = render $ foldl1 (.) attr pageT
+        attr' =
+            ("content" ==> rendered) .
+            ("blogRoot" ==> blogRoot layout) .
+            ("categories" ==> categories) .
+            ("identity" ==> identity) .
+            ("isRoot" ==> level == Root) .
+            ("isAuthed" ==> isJust mIdentity) .
+            ("sessionID" ==> sessionID) .
+            ("title" ==> "The Universe of Discord") .
+            foldl1 (.) attr
+    return $ asHTML $ toResponse $ render $ attr' layoutT
+

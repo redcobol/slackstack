@@ -4,6 +4,7 @@ debug:
 	ghci \
 		SlackStack/Handlers.hs \
 		SlackStack/Handlers/Auth.hs \
+		SlackStack/Handlers/Admin.hs \
 		SlackStack/Util.hs \
 
 fcgi:
@@ -13,6 +14,7 @@ fcgi:
 		SlackStack/Util.hs \
 		SlackStack/Handlers.hs \
 		SlackStack/Handlers/Auth.hs \
+		SlackStack/Handlers/Admin.hs \
 
 server:
 	ghc --make -threaded \
@@ -21,3 +23,4 @@ server:
 		SlackStack/Util.hs \
 		SlackStack/Handlers.hs \
 		SlackStack/Handlers/Auth.hs \
+		SlackStack/Handlers/Admin.hs \

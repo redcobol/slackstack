@@ -84,32 +84,7 @@ authHandlers dbh = msum [
                             "delete from sessions where id = ?"
                             [DB.toSql sessionID]
                         DB.commit dbh
+                    addCookie 0 $ mkCookie "session" ""
                     found "/" $ toResponse "Logged out"
                 else mzero
         ]
-
-data Access = Root | User
-    deriving (Show,Eq)
-accessLevel :: Int -> Access
-accessLevel 0 = Root
-accessLevel _ = User
-
-getIdentity :: DB.IConnection conn =>
-    conn -> ServerPartT IO (Maybe (String,Access))
-getIdentity dbh = do
-    peerAddr <- fst <$> rqPeer <$> askRq
-    sessionID <- fromJust <$> (`mplus` Just "")
-        <$> maybeCookieValue "session"
-    row <- liftIO $ DB.rowList dbh
-        "select sessions.identity from sessions \
-        \ where id = ? and addr = ?"
-        [DB.toSql sessionID, DB.toSql peerAddr]
-    case row of
-        Nothing -> return Nothing
-        Just [identity] -> do
-            row <- liftIO $ DB.rowList dbh
-                "select level from access where identity = ?"
-                [identity]
-            return . Just . ((,) $ DB.fromSql identity) $ case row of
-                Nothing -> User
-                Just [level] -> accessLevel $ DB.fromSql level

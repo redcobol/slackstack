@@ -3,6 +3,7 @@ import SlackStack.Util
 import qualified SlackStack.Util.DB as DB
 
 import SlackStack.Handlers.Auth
+import SlackStack.Handlers.Admin
 
 import Data.Maybe (fromJust,isJust,isNothing)
 
@@ -26,6 +27,7 @@ handlers :: DB.IConnection conn =>
     String -> conn -> ServerPartT IO Response
 handlers root dbh = msum [
         authHandlers dbh,
+        adminHandlers (layout root) dbh,
         methodSP GET $ postList root dbh,
         fileServe ["index.html"] "static"
     ]
@@ -35,17 +37,6 @@ postList :: DB.IConnection conn =>
 postList root dbh = do
     posts <- liftIO $ DB.rowMaps dbh
         "select * from posts order by timestamp desc" []
-    mIdentity <- getIdentity dbh
-    sessionID <- fromJust <$> (`mplus` Just "")
-        <$> maybeCookieValue "session"
-    let (identity,level) = fromJust mIdentity
-    
-    renderPage (layout root) "post-list" [
-            "title" ==> "The Universe of Discord",
-            "posts" ==> map (M.map DB.sqlAsString) posts,
-            "categories" ==> ["comics", "blog"],
-            "identity" ==> identity,
-            "isRoot" ==> level == Root,
-            "isAuthed" ==> isJust mIdentity,
-            "sessionID" ==> sessionID
+    renderPage dbh (layout root) "post-list" [
+            "posts" ==> map (M.map DB.sqlAsString) posts
         ]
