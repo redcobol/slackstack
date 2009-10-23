@@ -64,9 +64,20 @@ lookDefault name fallback = do
     return $ fromJust $ param `mplus` Just fallback
 
 -- maybe read a cookie
+{-
 maybeCookie :: (ServerMonad m, MonadPlus m, MayReadString a) =>
     String -> m (Maybe a)
 maybeCookie name = queryParse $ readCookieValue name
+-}
+maybeCookie :: (ServerMonad m, MonadPlus m) => String -> m (Maybe Cookie)
+maybeCookie name = getDataFn $ lookCookie name
+
+maybeCookieValue :: (ServerMonad m, MonadPlus m) => String -> m (Maybe String)
+maybeCookieValue name = do
+    cookie <- getDataFn $ lookCookie name
+    return $ case cookie of
+        Nothing -> Nothing
+        Just x -> Just $ cookieValue x
 
 data Layout = Layout {
     blogRoot :: String,

@@ -7,10 +7,11 @@ import Database.HDBC.Sqlite3 (connectSqlite3)
 
 import System.Environment (getEnv,getProgName)
 import Data.List (isSuffixOf)
+import Control.Monad (mplus)
 
 main :: IO ()
 main = do
-    root <- getEnv "SLACKSTACK_ROOT"
+    root <- getEnv "SLACKSTACK_ROOT" `mplus` return "."
     dbh <- connectSqlite3 (root ++ "/" ++ "substack.db")
     name <- getProgName
     let handler = handlers root dbh

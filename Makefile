@@ -2,8 +2,8 @@ all: server
 
 debug:
 	ghci \
+		SlackStack/Handlers.hs \
 		SlackStack/Util.hs \
-		SlackStack/Handlers.hs
 
 fcgi:
 	ghc --make -threaded \

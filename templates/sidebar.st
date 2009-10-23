@@ -4,7 +4,7 @@
     $else$
         <form id="openid" action="openid" method="post">
             <p id="openid">Sign in with <a href="#">openid</a></p>
-            <input type="text" />
+            <input type="text" name="identity" />
             <input type="submit" value ="&lambda;" />
         </form>
     $endif$

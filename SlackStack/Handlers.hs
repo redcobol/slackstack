@@ -2,13 +2,14 @@ module SlackStack.Handlers where
 import SlackStack.Util
 import qualified SlackStack.Util.DB as DB
 
-import Data.Maybe (fromJust,isJust)
+import Data.Maybe (fromJust,isJust,isNothing)
 
 import Happstack.Server
 import Web.Encodings (encodeHtml, encodeUrl)
 import Control.Monad
 import Control.Monad.Trans (lift,liftIO)
 import Control.Applicative
+import Control.Arrow
 import qualified Data.Map as M
 import Data.ByteString.UTF8 (toString)
 
@@ -36,31 +37,38 @@ handlers root dbh = msum [
             session <- liftIO $ ID.auth ID.config identity returnTo
             
             peerAddr <- fst <$> rqPeer <$> askRq
-            liftIO $ DB.run dbh
+            liftIO $ do
+                DB.run dbh
                     "insert into openid_sessions \
                     \ (id, addr, session) \
                     \ values (?, ?, ?)"
-                $ map DB.toSql [ sessionID, peerAddr, show session ]
+                    $ map DB.toSql [ sessionID, peerAddr, show session ]
+                DB.commit dbh
             
-            setHeaderM "Location" $ ID.sAuthURI session
-            return $ toResponse
-                $ "Your browser should forward you along to "
-                    ++ ID.sAuthURI session
+            found (ID.sAuthURI session) $
+                toResponse "Forwarding to remote OpenID authority"
         ,
         dir "openid" $ do
-            sessionID <- fromJust <$> maybeCookie "session"
-                :: (ServerMonad m, MonadPlus m, Functor m) => m String
-            
             peerAddr <- fst <$> rqPeer <$> askRq
-            identity <- fromJust <$> maybeLook "openid.identity"
             
-            session <- liftIO $ read . DB.fromSql . head . fromJust
-                <$> (DB.rowList dbh
-                    "select session from openid_sessions \
-                    \ where identity = ? and addr = ?"
-                    $ map DB.toSql [identity,peerAddr])
+            mSessionID <- maybeCookie "session"
+            when (isNothing mSessionID) $
+                fail "Couldn't read session cookie"
+            let sessionID = cookieValue $ fromJust mSessionID :: String
             
-            uri <- rqUri <$> askRq
+            mIdentity <- maybeLook "openid.identity"
+            when (isNothing mIdentity) $
+                fail "Couldn't read openid.identity parameter"
+            let identity = fromJust mIdentity :: String
+            
+            mSession <- liftIO $ DB.rowList dbh
+                "select session from openid_sessions \
+                \ where id = ? and addr = ?"
+                [DB.toSql sessionID, DB.toSql peerAddr]
+            when (isNothing mSession) $ fail "session mismatch"
+            let session = read $ DB.fromSql $ head $ fromJust mSession
+            
+            uri <- uncurry (++) . (rqUri &&& rqQuery) <$> askRq
             liftIO $ ID.verify ID.config session uri
             
             liftIO $ DB.run dbh
@@ -71,8 +79,9 @@ handlers root dbh = msum [
                 "insert into sessions (id,addr,identity) values (?,?,?)"
                 [DB.toSql sessionID, DB.toSql peerAddr, DB.toSql identity]
             
-            setHeaderM "Location" "/"
-            return $ toResponse "Forwarding to /"
+            liftIO $ DB.commit dbh
+            
+            found "/" $ toResponse "Forwarding to main page"
         ,
         methodSP GET $ postList root dbh,
         fileServe ["index.html"] "static"
@@ -83,8 +92,21 @@ postList :: DB.IConnection conn =>
 postList root dbh = do
     posts <- liftIO $ DB.rowMaps dbh
         "select * from posts order by timestamp desc" []
+    
+    peerAddr <- fst <$> rqPeer <$> askRq
+    sessionID <- fromJust <$> (`mplus` Just "") <$> maybeCookieValue "session"
+    
+    mIdentity <- liftIO $ DB.rowList dbh
+        "select identity from sessions \
+        \ where id = ? and addr = ?"
+        [DB.toSql sessionID, DB.toSql peerAddr]
+    let
+        identity = case mIdentity of
+            Nothing -> "anonymous"
+            Just x -> DB.fromSql $ head x
+    
     renderPage (layout root) "post-list" [
-            "title" ==> "The Universe of Discord: ",
+            "title" ==> "The Universe of Discord: " ++ identity,
             "posts" ==> map (M.map DB.sqlAsString) posts,
             "categories" ==> ["comics", "blog"]
         ]
