@@ -19,6 +19,7 @@
 
 #header-img {
     margin-top: -20px;
+    border-style: none;
 }
 
 img#robot {
@@ -123,4 +124,13 @@ input[type="submit"] {
     color: white;
     border-style: solid;
     border-color: black;
+}
+
+input[type="text"].posttext {
+    width: 30em;
+}
+
+textarea.postbox {
+    width: 100%;
+    height: 24em;
 }
