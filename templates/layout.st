@@ -5,8 +5,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>$ title $</title>
-    <link rel="StyleSheet" href="stylesheets/slack.css" type="text/css" />
-    <link rel="icon" href="images/favicon.png" type="image/png" />
+    <link rel="StyleSheet" type="text/css"
+        href="$ blogRoot $/stylesheets/slack.css" />
+    <link rel="icon" href="$ blogRoot $/images/favicon.png" type="image/png" />
     <link rel="openid.server" href="http://www.myopenid.com/server" />
     <link rel="openid.delegate" href="http://substack.myopenid.com/" />
     <link rel="openid2.local_id" href="http://substack.myopenid.com" />

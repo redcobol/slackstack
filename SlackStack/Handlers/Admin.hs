@@ -1,7 +1,7 @@
 module SlackStack.Handlers.Admin where
 
 import SlackStack.Util
-import Data.Maybe (fromJust,isJust)
+import Data.Maybe (fromJust,isJust,isNothing)
 import qualified SlackStack.Util.DB as DB
 
 import Happstack.Server
@@ -13,12 +13,14 @@ import Control.Monad
 adminHandlers :: DB.IConnection conn =>
     Layout -> conn -> ServerPartT IO Response
 adminHandlers layout dbh = msum [
-        dir "/admin" $ methodSP POST $ do
+        dir "admin" $ methodSP GET $ do
             mIdentity <- getIdentity dbh
-            (guard $ isJust mIdentity) `mplus`
+            when (isNothing mIdentity) $
                 fail "This page requires identification"
-            let (identity,level) = fromJust mIdentity
             
-            guard $ level == Root
+            let (identity,level) = fromJust mIdentity
+            when (level /= Root) $
+                fail "Must be root-level to see this page"
+            
             renderPage dbh layout "admin" []
     ]

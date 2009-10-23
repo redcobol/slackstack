@@ -148,9 +148,8 @@ renderPage :: DB.IConnection conn =>
 renderPage dbh layout page attr = do
     templates <- lift $ directoryGroup (templateDir layout)
     pages <- lift $ directoryGroup (pageDir layout)
-    categories <- liftIO $ map DB.sqlAsString . fromJust
-        <$> (`mplus` Just [])
-        <$> DB.rowList dbh "select title from categories" []
+    categories <- liftIO $ map DB.sqlAsString . concat
+        <$> DB.rowLists dbh "select title from categories" []
     
     mIdentity <- getIdentity dbh
     sessionID <- fromJust <$> (`mplus` Just "")
@@ -160,16 +159,16 @@ renderPage dbh layout page attr = do
     let
         pageT = fromJust $ getStringTemplate page pages
         layoutT = fromJust $ getStringTemplate (layoutPage layout) templates
-        rendered = render $ foldl1 (.) attr pageT
-        attr' =
-            ("content" ==> rendered) .
-            ("blogRoot" ==> blogRoot layout) .
-            ("categories" ==> categories) .
-            ("identity" ==> identity) .
-            ("isRoot" ==> level == Root) .
-            ("isAuthed" ==> isJust mIdentity) .
-            ("sessionID" ==> sessionID) .
-            ("title" ==> "The Universe of Discord") .
-            foldl1 (.) attr
+        rendered = render $ foldl (.) id attr $ pageT
+        attr' = foldl (.) id $ [
+                "content" ==> rendered,
+                "blogRoot" ==> blogRoot layout,
+                "categories" ==> categories,
+                "identity" ==> identity,
+                "isRoot" ==> level == Root,
+                "isAuthed" ==> isJust mIdentity,
+                "sessionID" ==> sessionID,
+                "title" ==> "The Universe of Discord"
+            ] ++ attr
     return $ asHTML $ toResponse $ render $ attr' layoutT
 

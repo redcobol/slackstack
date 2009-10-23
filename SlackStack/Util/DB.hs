@@ -1,6 +1,6 @@
 module SlackStack.Util.DB (
     module Database.HDBC,
-    sqlAsString, rowMaps, rowMaps', rowMap, rowList
+    sqlAsString, rowMaps, rowMaps', rowMap, rowList, rowLists
 ) where
 
 import Database.HDBC
@@ -32,3 +32,7 @@ rowMap = prepareExec fetchRowMap
 rowList :: IConnection conn => conn ->
     String -> [SqlValue] -> IO (Maybe [SqlValue])
 rowList = prepareExec fetchRow
+
+rowLists :: IConnection conn => conn ->
+    String -> [SqlValue] -> IO [[SqlValue]]
+rowLists = prepareExec fetchAllRows
