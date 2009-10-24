@@ -100,9 +100,9 @@ instance MayReadString String where
 instance (MayReadString a) => MayReadString [a]
 instance (MayReadString a, MayReadString b) => MayReadString (a,b)
 
-randHex :: Integral a => a -> IO String
+randHex :: Int -> IO String
 randHex size = foldl (flip $ showHex) ""
-    <$> (replicateM size $ randomRIO (0,15))
+    <$> (replicateM size $ randomRIO (0, 15 :: Int))
 
 -- access stuff...
 data Access = Root | User

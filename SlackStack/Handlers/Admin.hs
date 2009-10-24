@@ -42,12 +42,15 @@ newPost layout dbh = do
         <$> formatTime defaultTimeLocale "%F %T"
         <$> getCurrentTime
     
-    pid <- liftIO $ do
+    pid <- liftIO $ msum $ repeat $ do
+        pid' <- randHex 6
         DB.run dbh
-            "insert into posts (title, timestamp, body) values (?,?,?)"
-            [title, timestamp, body]
-        DB.commit dbh
-        DB.fromSql <$> head <$> fromJust 
-            <$> DB.rowList dbh "select last_insert_rowid()" []
+            "insert into posts \
+                \ (id, title, timestamp, body) \
+                \ values (?,?,?,?)"
+            [DB.toSql pid', title, timestamp, body]
+        return pid'
+    liftIO $ DB.commit dbh
+    
     found (blogRoot layout ++ "/posts/" ++ pid) $
         toResponse "Forwarding to created post"

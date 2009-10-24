@@ -1,5 +1,5 @@
 create table posts (
-    id integer primary key,
+    id char(6) unique primary key not null,
     title text,
     timestamp datetime,
     body text
@@ -34,7 +34,7 @@ create table openid_sessions (
 );
 
 create table sessions (
-    id text unique,
+    id char(32) unique primary key not null,
     addr text,
     identity text
 );
@@ -43,4 +43,9 @@ create table access (
     identity text,
     level integer
 );
-insert into access (identity, level) values ('http://substack.myopenid.com',0);
+
+-- create root user:
+insert into access
+    (identity, level)
+    values ('http://substack.myopenid.com', 0)
+;

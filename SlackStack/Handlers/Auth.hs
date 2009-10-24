@@ -17,7 +17,7 @@ authHandlers dbh = msum [
         dir "openid" $ methodSP POST $ do
             identity <- fromJust <$> maybeLook "identity"
             
-            sessionID <- liftIO $ randHex 256
+            sessionID <- liftIO $ randHex 32
             addCookie (60*60*24*7) $ mkCookie "session" sessionID
             
             host <- toString . fromJust <$> getHeaderM "Host"

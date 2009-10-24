@@ -70,6 +70,16 @@ img#robot {
     margin-left: 2em;
 }
 
+
+#content div.post h1 a {
+    text-decoration: none;
+    border-bottom-style: dotted;
+}
+
+#content div.post h1 a:visited {
+    color: rgb(100,80,200);
+}
+
 #content div.post h2 {
     background-color: rgb(160,50,80);
     font-size: 1em;
