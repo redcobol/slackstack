@@ -16,6 +16,15 @@ fcgi:
 		SlackStack/Handlers/Auth.hs \
 		SlackStack/Handlers/Admin.hs \
 
+cgi:
+	ghc --make -threaded \
+		-o slackstack.cgi \
+		SlackStack/CGI.hs \
+		SlackStack/Util.hs \
+		SlackStack/Handlers.hs \
+		SlackStack/Handlers/Auth.hs \
+		SlackStack/Handlers/Admin.hs \
+
 server:
 	ghc --make -threaded \
 		-o slackstack \
