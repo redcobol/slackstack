@@ -1,9 +1,21 @@
 $posts:{
     <div class="post">
-        <h1><a
-            href="$ blogRoot $/posts/$ it.('id') $/$ it.('uri-title') $"
-        >$ it.('title') $</a></h1>
-        <h2>$ it.('timestamp') $</h2>
+        <div>
+            <span class="title"><a
+                href="$ blogRoot $/posts/$ it.('id') $/$ it.('uri-title') $"
+            >$ it.('title') $</a></span>
+            <span class="timestamp">[ $ it.('timestamp') $ UTC ]</span>
+            $if(isRoot)$
+            <span class="admin-post-controls">
+                [
+                <a href="$ blogroot $/admin/edit-post/$ it $">edit</a>
+                    |
+                <a href="$ blogroot $/admin/remove-post/$ it $">remove</a>
+                ]
+            </span>
+            $endif$
+        </div>
+        <hr />
         $ it.('body') $
     </div>
 }$

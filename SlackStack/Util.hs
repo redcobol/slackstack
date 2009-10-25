@@ -145,7 +145,7 @@ renderPage :: DB.IConnection conn =>
     conn -> Layout -> String ->
     [ (StringTemplate String -> StringTemplate String) ] ->
     ServerPartT IO Response
-renderPage dbh layout page attr = do
+renderPage dbh layout page attrList = do
     templates <- lift $ directoryGroup (templateDir layout)
     pages <- lift $ directoryGroup (pageDir layout)
     categories <- liftIO $ map DB.sqlAsString . concat
@@ -159,9 +159,8 @@ renderPage dbh layout page attr = do
     let
         pageT = fromJust $ getStringTemplate page pages
         layoutT = fromJust $ getStringTemplate (layoutPage layout) templates
-        rendered = render $ foldl (.) id attr $ pageT
-        attr' = foldl (.) id $ [
-                "content" ==> rendered,
+        rendered = render $ attr pageT
+        attr = foldl (.) id $ [
                 "blogRoot" ==> blogRoot layout,
                 "categories" ==> categories,
                 "identity" ==> identity,
@@ -169,6 +168,6 @@ renderPage dbh layout page attr = do
                 "isAuthed" ==> isJust mIdentity,
                 "sessionID" ==> sessionID,
                 "title" ==> "The Universe of Discord"
-            ] ++ attr
+            ] ++ attrList
+        attr' = attr . ("content" ==> rendered)
     return $ asHTML $ toResponse $ render $ attr' layoutT
-
