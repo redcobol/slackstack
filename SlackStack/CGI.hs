@@ -11,7 +11,7 @@ import Data.List (isSuffixOf)
 
 main :: IO ()
 main = do
-    root <- getEnv "SLACKSTACK_ROOT"
+    root <- getEnv "HTTP_SLACKSTACK_ROOT"
     dbh <- connectSqlite3 (root ++ "/" ++ "substack.db")
     name <- getProgName
     let handler = handlers root dbh
