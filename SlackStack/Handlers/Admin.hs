@@ -26,6 +26,11 @@ adminHandlers layout dbh =
             fail "Must be root-level to see this page"
         
         msum [
+                dir "edit-post" $ anyPath $ methodSP GET $ do
+                    postID <- head <$> rqPaths <$> askRq
+                    renderPage dbh layout "admin-edit-post"
+                        [ "postID" ==> postID ]
+                ,
                 dir "new-post" $ methodSP GET $ do
                     renderPage dbh layout "admin-new-post" []
                 ,

@@ -21,7 +21,7 @@ import Web.Encodings (encodeHtml, encodeUrl)
 import Safe (readMay)
 
 import qualified Data.Map as M
-import Data.Maybe (isJust)
+import Data.Maybe (isJust,isNothing)
 
 import System.Random (randomRIO)
 import Numeric (showHex)
@@ -156,9 +156,17 @@ renderPage dbh layout page attrList = do
         <$> maybeCookieValue "session"
     let (identity,level) = fromJust $ mIdentity `mplus` Just ("anonymous",User)
     
+    let pageTM = getStringTemplate page pages
+    when (isNothing pageTM) $
+        fail $ "Couldn't find string template for page: " ++ page
+    
+    let layoutTM = getStringTemplate (layoutPage layout) templates
+    when (isNothing layoutTM) $
+        fail $ "Couldn't find string template for layout: " ++ layoutPage layout
+    
     let
-        pageT = fromJust $ getStringTemplate page pages
-        layoutT = fromJust $ getStringTemplate (layoutPage layout) templates
+        pageT = fromJust pageTM
+        layoutT = fromJust layoutTM
         rendered = render $ attr pageT
         attr = foldl (.) id $ [
                 "blogRoot" ==> blogRoot layout,
