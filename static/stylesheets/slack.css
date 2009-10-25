@@ -74,6 +74,11 @@ img#robot {
 }
 
 #content div.post code {
+    white-space: pre;
+    background-color: rgb(230,230,230);
+    display: block;
+    padding-bottom: 1em;
+    padding-left: 1em;
 }
 
 #content div.post span.title {
