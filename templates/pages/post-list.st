@@ -8,9 +8,10 @@ $posts:{
             $if(isRoot)$
             <span class="admin-post-controls">
                 [
-                <a href="$ blogroot $/admin/edit-post/$ it $">edit</a>
+                <a href="$ blogroot $/admin/edit-post/$ it.('id') $">edit</a>
                     |
-                <a href="$ blogroot $/admin/remove-post/$ it $">remove</a>
+                <a href="$ blogroot $/admin/remove-post/$
+                    it.('id') $/$ sessionID $">remove</a>
                 ]
             </span>
             $endif$
