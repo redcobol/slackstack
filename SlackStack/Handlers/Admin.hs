@@ -28,6 +28,10 @@ adminHandlers layout dbh =
             fail "Must be root-level to see this page"
         
         msum [
+                dir "new-post" $ methodSP GET $ do
+                    renderPage dbh layout "admin-new-post" []
+                ,
+                dir "new-post" $ methodSP POST $ createNewPost dbh layout,
                 dir "edit-post" $ path $ \postID -> methodSP GET $ do
                     rowM <- liftIO $ DB.rowMap dbh
                         "select * from posts where id = ?"
@@ -41,17 +45,17 @@ adminHandlers layout dbh =
                             "postBody" ==> row M.! "body"
                        ]
                 ,
-                dir "edit-post" $ methodSP POST $ editPost layout dbh,
-                dir "new-post" $ methodSP GET $ do
-                    renderPage dbh layout "admin-new-post" []
+                dir "edit-post" $ methodSP POST $ editPost dbh layout,
+                dir "remove-post"
+                    $ path $ \postID -> path $ \sessionID -> methodSP GET
+                    $ removePost dbh layout postID sessionID
                 ,
-                dir "new-post" $ methodSP POST $ createNewPost layout dbh,
                 methodSP GET $ renderPage dbh layout "admin" []
             ]
 
 createNewPost :: DB.IConnection conn =>
-    Layout -> conn -> ServerPartT IO Response
-createNewPost layout dbh = do
+    conn -> Layout -> ServerPartT IO Response
+createNewPost dbh layout = do
     body <- DB.toSql <$> ("body" `lookDefault` "")
     title <- DB.toSql <$> ("title" `lookDefault` "")
     timestamp <- liftIO $ DB.toSql
@@ -73,15 +77,33 @@ createNewPost layout dbh = do
         toResponse "Forwarding to created post"
 
 editPost :: DB.IConnection conn =>
-    Layout -> conn -> ServerPartT IO Response
-editPost layout dbh = do
+    conn -> Layout -> ServerPartT IO Response
+editPost dbh layout = do
     body <- DB.toSql <$> ("body" `lookDefault` "")
     title <- DB.toSql <$> ("title" `lookDefault` "")
-    postID <- "post_id" `lookDefault` ""
+    postID <- "postID" `lookDefault` ""
     
-    liftIO $ DB.run dbh
-        "update posts set title = ?, body = ? where id = ?"
-        [ title, body, DB.toSql postID ]
+    liftIO $ do
+        DB.run dbh
+            "update posts set title = ?, body = ? where id = ?"
+            [ title, body, DB.toSql postID ]
+        DB.commit dbh
     
     found (blogRoot layout ++ "/posts/" ++ postID) $
         toResponse "Forwarding to edited post"
+
+removePost :: DB.IConnection conn =>
+    conn -> Layout -> String -> String -> ServerPartT IO Response
+removePost dbh layout postID sessionID = do
+    sessionCookie <- cookieValue <$> fromJust <$> maybeCookie "session"
+    
+    -- put session id in link so that posts can't be removed
+    -- by malicious links and images and such
+    when (sessionCookie /= sessionID) $
+        fail "session mismatch"
+    
+    liftIO $ do
+        DB.run dbh "delete from posts where id = ?" [ DB.toSql postID ]
+        DB.commit dbh
+    
+    found (blogRoot layout ++ "/") $ toResponse "Forwarding to main page"
