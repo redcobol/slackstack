@@ -71,6 +71,9 @@ img#robot {
     margin-bottom: 5em;
 }
 
+#content div.post code {
+}
+
 #content div.post span.title {
 }
 
@@ -94,6 +97,12 @@ img#robot {
 
 #content div.post span.admin-post-controls {
     margin-left: 3em;
+}
+
+#content div.post img.left-art {
+    float: left;
+    margin-right: 2em;
+    margin-left: 2em;
 }
 
 #content pre {
