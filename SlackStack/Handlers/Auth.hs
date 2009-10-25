@@ -56,7 +56,7 @@ authHandlers dbh = msum [
             when (isNothing mSession) $ fail "session mismatch"
             let session = read $ DB.fromSql $ head $ fromJust mSession
             
-            uri <- uncurry (++) . (rqUri &&& rqQuery) <$> askRq
+            uri <- rqQuery <$> askRq
             liftIO $ ID.verify ID.config session uri
             
             liftIO $ DB.run dbh
