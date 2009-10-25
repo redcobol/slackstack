@@ -10,8 +10,11 @@ $posts:{
                 [
                 <a href="$ blogroot $/admin/edit-post/$ it.('id') $">edit</a>
                     |
-                <a href="$ blogroot $/admin/remove-post/$
-                    it.('id') $/$ sessionID $">remove</a>
+                <a
+                    href="$ blogroot $/admin/remove-post/$
+                        it.('id') $/$ sessionID $"
+                    onclick="return confirm('Remove this post?')"
+                >remove</a>
                 ]
             </span>
             $endif$
