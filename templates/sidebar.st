@@ -21,6 +21,9 @@
             <a href="$ blogroot $/admin/$ it $">admin</a>
         </dt>
     $endif$
+    <dt>
+        <a href="$ blogroot $/about">about</a>
+    </dt>
     $categories:{
         <dt>
             <a href="$ blogroot $/category/$ it $">$ it $</a>

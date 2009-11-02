@@ -30,6 +30,9 @@ handlers :: DB.IConnection conn =>
 handlers root dbh = msum [
         authHandlers dbh,
         adminHandlers (layout root) dbh,
+        dir "about" $ methodSP GET $
+            renderPage dbh (layout root) "about" []
+        ,
         dir "posts" $ do
             -- /posts/3c0ff5/some-story-about-cabbage
             --       '——————'--> pid
