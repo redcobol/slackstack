@@ -30,7 +30,8 @@ I have been observing this planet for
 of your Earth years.
 
 Sometimes I draw pictures of robots.
-Other times I write computer programs in esoteric languages.
+Other times I write computer programs in
+<a href="http://haskell.org/">esoteric languages</a>.
 I am easily amused.
 
 <h1></h1>
@@ -50,6 +51,12 @@ robots in order to expand mining to more moons.
 Robots are the future.
 Robots do the jobs that humans can't do and with ruthless efficiency.
 Robots are pretty great!
+
+<h1>About Technology</h1>
+This hypertext was rendered by
+<a href="http://github.com/substack/slackstack">slackstack</a>,
+some kind of web thing I wrote based around
+<a href="http://happstack.com/">happstack</a>.
 
 <h1>About Discord</h1>
 In the Universe of Discord, even false things are true.
