@@ -30,7 +30,9 @@ I have been observing this planet for
 of your Earth years.
 
 Sometimes I draw pictures of robots.
-Other times I write computer programs in
+Other times I write
+<a href="http://codegolf.com/">terse</a>
+computer programs in
 <a href="http://haskell.org/">esoteric languages</a>.
 I am easily amused.
 
@@ -53,10 +55,19 @@ Robots do the jobs that humans can't do and with ruthless efficiency.
 Robots are pretty great!
 
 <h1>About Technology</h1>
+<p>
 This hypertext was rendered by
 <a href="http://github.com/substack/slackstack">slackstack</a>,
 some kind of web thing I wrote based around
 <a href="http://happstack.com/">happstack</a>.
+</p>
+
+<p>
+I make electronic drawings with <a href="http://inkscape.org/">inkscape</a>
+and a <a
+href="http://www.amazon.com/Bamboo-Medium-Tablet-Graphics-Software/dp/B000V9RL6G"
+>wacom bamboo medium</a> tablet.
+</p>
 
 <h1>About Discord</h1>
 In the Universe of Discord, even false things are true.
