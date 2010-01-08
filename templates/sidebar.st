@@ -15,16 +15,18 @@
         </form>
     $endif$
     
-    <br />
+    <div id="sidebar-links">
     
     $if(isRoot)$
-        <a href="$ blogroot $/admin/$ it $">admin</a><br />
+        <p><a href="$ blogroot $/admin/$ it $">admin</a></p>
     $endif$
     
-    <a href="$ blogroot $/about">about</a><br />
-    <a href="http://github.com/substack">code</a><br />
+    <p><a href="$ blogroot $/about">about</a></p>
+    <p><a href="http://github.com/substack">code</a></p>
     
     $categories:{
-        <a href="$ blogroot $/category/$ it $">$ it $</a><br />
+        <p><a href="$ blogroot $/category/$ it $">$ it $</a></p>
     }$
+    
+    </div>
 </div>

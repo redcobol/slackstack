@@ -29,7 +29,6 @@
 <p>
     Oh hello! People tell me my name is James Halliday and I believe them.
     I have been observing this planet for
-
     <script type="text/javascript">
         var now = new Date();
         var birth = new Date(1987,9,22); // 9 is actually 10 >_<
@@ -44,6 +43,14 @@
         an undisclosed number
     </noscript>
     of your Earth years.
+</p>
+    
+<p>
+    I am a <a href="http://cs.uaf.edu/">computer science student</a>
+    at the University of Alaska, Fairbanks.
+    
+    I live in a poorly-insulated but cozy two-story building covered in chalk art
+    a short walk or bike ride from campus.
 </p>
 
 <p>
