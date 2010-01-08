@@ -110,6 +110,18 @@ img#robot {
     float: left;
     margin-right: 2em;
     margin-bottom: 2em;
+    margin-top: 1em;
+}
+
+#content div.post img.right-art {
+    float: right;
+    margin-left: 2em;
+    margin-bottom: 2em;
+    margin-top: 1em;
+}
+
+#content .note {
+    font-style: italic;
 }
 
 #content pre {
