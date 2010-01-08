@@ -15,19 +15,16 @@
         </form>
     $endif$
     
-    <dl>
+    <br />
+    
     $if(isRoot)$
-        <dt>
-            <a href="$ blogroot $/admin/$ it $">admin</a>
-        </dt>
+        <a href="$ blogroot $/admin/$ it $">admin</a><br />
     $endif$
-    <dt>
-        <a href="$ blogroot $/about">about</a>
-    </dt>
+    
+    <a href="$ blogroot $/about">about</a><br />
+    <a href="http://github.com/substack">code</a><br />
+    
     $categories:{
-        <dt>
-            <a href="$ blogroot $/category/$ it $">$ it $</a>
-        </dt>
+        <a href="$ blogroot $/category/$ it $">$ it $</a><br />
     }$
-    </dl>
 </div>

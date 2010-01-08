@@ -59,6 +59,7 @@
     You can follow my wacky adventures on
         <a href="http://github.com/substack">github</a>,
         <a href="http://www.plurk.com/substack">plurk</a>,
+        <a href="http://www.flickr.com/photos/substack/">flickr</a>,
         and irc.freenode.net/{##turtles,#perl-cats}
             (among 20 or so other channels)
     </ul>
