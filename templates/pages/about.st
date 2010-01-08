@@ -20,8 +20,18 @@
 <p>
     You can send me 
     <a href="http://www.faqs.org/rfcs/rfc821.html"
-    >electronic mail</a> at <a href="mail-to:substack@gmail.com"
-    >substack@gmail.com</a>.
+    >electronic mail</a> by way of
+    <script type="text/javascript">
+        var names = "james halliday jhalliday jh jwh mail".split(/ /);
+        document.write(
+            names[Math.floor(Math.random() * names.length)]
+            + "@substack.net"
+        );
+    </script>
+    <noscript>
+        <a href="mail-to:mail@substack.net">mail@substack.net</a>
+    </noscript>
+    .
 </p>
 
 <h1>About Me</h1>
