@@ -138,8 +138,10 @@ img#robot {
     padding: 1em;
 }
 
-#sidebar p#links {
-    font-size: 1.5em;
+#sidebar div#sidebar-links p {
+    font-size: 1.2em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 #sidebar form#openid input[type="text"] {
