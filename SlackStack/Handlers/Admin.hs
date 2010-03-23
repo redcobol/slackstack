@@ -13,6 +13,7 @@ import Control.Monad
 import Data.Time.Clock (getCurrentTime)
 import Data.Time.Format
 import System.Locale (defaultTimeLocale)
+import Web.Encodings (encodeHtml)
 
 import qualified Data.Map as M
 
@@ -40,9 +41,9 @@ adminHandlers layout dbh =
                     let row = M.map DB.sqlAsString $ fromJust rowM
                     
                     renderPage dbh layout "admin-edit-post" [
-                            "postID" ==> (postID :: String),
-                            "postTitle" ==> row M.! "title",
-                            "postBody" ==> row M.! "body"
+                            "postID" ==> encodeHtml (postID :: String),
+                            "postTitle" ==> encodeHtml (row M.! "title"),
+                            "postBody" ==> encodeHtml (row M.! "body")
                        ]
                 ,
                 dir "edit-post" $ methodSP POST $ editPost dbh layout,
