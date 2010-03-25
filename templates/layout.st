@@ -8,6 +8,7 @@
     <link rel="StyleSheet" type="text/css"
         href="$ blogRoot $/stylesheets/slack.css" />
     <link rel="icon" href="$ blogRoot $/images/favicon.png" type="image/png" />
+    <!-- being able to type "substack.net" into the openID login box is great -->
     <link rel="openid.server" href="http://www.myopenid.com/server" />
     <link rel="openid.delegate" href="http://substack.myopenid.com/" />
     <link rel="openid2.local_id" href="http://substack.myopenid.com" />
@@ -15,6 +16,20 @@
     <meta http-equiv="X-XRDS-Location"
         content="http://www.myopenid.com/xrds?username=substack.myopenid.com"
     />
+    
+    <script type="text/javascript">
+        // google analytics stuff
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost
+            + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"
+        ));
+    </script>
+    <script type="text/javascript">
+        try {
+            var pageTracker = _gat._getTracker("UA-15464999-1");
+            pageTracker._trackPageview();
+        } catch(err) {}
+    </script>
 </head>
 <body>
     $ header() $
