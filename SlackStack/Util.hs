@@ -3,7 +3,7 @@
 
 module SlackStack.Util where
 
-import Happstack.Server
+import Happstack.Server hiding (asContentType)
 import Happstack.Util.Common
 
 import qualified SlackStack.Util.DB as DB
