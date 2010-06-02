@@ -41,7 +41,7 @@ handlers root dbh = msum [
             -- /posts/3c0ff5/some-story-about-cabbage
             --       '——————'--> pid
             pid <- DB.toSql . head . rqPaths <$> askRq
-            posts <- liftIO $ (withNextPrev dbh =<<) $ DB.rowMaps dbh
+            posts <- liftIO $ (withNextPrev dbh 0 =<<) $ DB.rowMaps dbh
                 "select * from posts where id = ? limit 1" [pid]
             renderPosts (layout root) dbh posts
         ,
@@ -49,7 +49,7 @@ handlers root dbh = msum [
             let lastF xs = case xs of { [] -> ""; xs -> last xs }
             dateP <- lastF . rqPaths <$> askRq
             let parseT f = parseTime defaultTimeLocale f dateP
-            posts <- liftIO $ (withNextPrev dbh =<<)
+            posts <- liftIO $ (withNextPrev dbh 5 =<<)
                 $ case parseT "%F %T" <|> parseT "%F" of
                     Nothing -> DB.rowMaps dbh
                             "select * from posts order by timestamp desc limit 5" []
@@ -60,7 +60,7 @@ handlers root dbh = msum [
             renderPosts (layout root) dbh posts
         ,
         methodSP GET $ do
-            posts <- liftIO $ (withNextPrev dbh =<<) $ DB.rowMaps dbh
+            posts <- liftIO $ (withNextPrev dbh 5 =<<) $ DB.rowMaps dbh
                 "select * from posts order by timestamp desc limit 5" []
             renderPosts (layout root) dbh posts
         ,
@@ -86,15 +86,15 @@ renderPosts layout dbh posts = do
         ]
             
 withNextPrev :: DB.IConnection conn
-    => conn -> [M.Map String DB.SqlValue]
+    => conn -> Int -> [M.Map String DB.SqlValue]
     -> IO [M.Map String DB.SqlValue]
-withNextPrev _ [] = return []
-withNextPrev dbh posts = do
+withNextPrev _ _ [] = return []
+withNextPrev dbh n posts = do
     let dt = last posts M.! "timestamp"
     nexts <- map (M.mapKeys ("next_" ++)) <$> DB.rowMaps dbh
         "select id,title,timestamp from posts \
         \where timestamp > ? order by timestamp asc limit 1 offset ?"
-        [dt, DB.toSql $ length posts - 1]
+        [dt, DB.toSql n]
     prevs <- map (M.mapKeys ("prev_" ++)) <$> DB.rowMaps dbh
         "select id,title,timestamp from posts \
         \where timestamp < ? order by timestamp desc limit 1"
