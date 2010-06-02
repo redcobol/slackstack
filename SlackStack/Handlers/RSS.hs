@@ -21,33 +21,37 @@ rssHandler :: DB.IConnection conn => conn -> ServerPartT IO Response
 rssHandler dbh = dir "rss" $ methodSP GET $ do
     posts <- liftIO $ DB.rowMaps dbh
         "select id,title,description from posts" []
-    let rss :: RSS.RSS
-        rss = RSS.RSS
+    
+    return $ asContentType "application/rss+xml" $ toResponse
+        $ RSS.showXML $ RSS.rssToXML $ rssFromPosts posts
+    
+rssFromPosts :: [M.Map String DB.SqlValue] -> RSS.RSS
+rssFromPosts posts = RSS.RSS
+    "The Universe of Discord"
+    (uri "http://substack.net")
+    "Pictures of robots with words in between"
+    [
+        RSS.WebMaster "mail@substack.net",
+        RSS.Image
+            (uri "http://substack.net/images/substackistan.png")
             "The Universe of Discord"
             (uri "http://substack.net")
-            "Pictures of robots with words in between"
-            [
-                RSS.WebMaster "mail@substack.net",
-                RSS.Image
-                    (uri "http://substack.net/images/substackistan.png")
-                    "The Universe of Discord"
-                    (uri "http://substack.net")
-                    (Just 107) (Just 71) Nothing
-            ]
-            (map rssify posts)
-        
-        rssify :: M.Map String DB.SqlValue -> RSS.Item
-        rssify post =
-            (RSS.Title title)
-            : (RSS.Description desc)
-            : (RSS.Link $ uri
-                $ "http://substack.net/posts/" ++ pid ++ "/" ++ stripper title)
-            : []
-            where
-                [pid,title,desc] = map (DB.fromSql . (post M.!))
-                    $ words "id description title"
-    return $ asContentType "application/rss+xml" $ toResponse
-        $ RSS.showXML $ RSS.rssToXML rss
+            (Just 107) (Just 71) Nothing
+    ]
+    (map rssify posts)
+    
+rssify :: M.Map String DB.SqlValue -> RSS.Item
+rssify post =
+    (RSS.Title title)
+    : (RSS.Description desc)
+    : (RSS.Link $ uri
+        $ "http://substack.net/posts/" ++ pid ++ "/" ++ stripper title)
+    : []
+    where
+        f DB.SqlNull = ""
+        f x = DB.fromSql x
+        [pid,title,desc] = map (f . (post M.!))
+            $ words "id description title"
 
 uri :: String -> URI
 uri = fromJust . parseURI

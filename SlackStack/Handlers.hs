@@ -4,6 +4,7 @@ import qualified SlackStack.Util.DB as DB
 
 import SlackStack.Handlers.Auth
 import SlackStack.Handlers.Admin
+import SlackStack.Handlers.RSS
 
 import Data.Maybe (fromJust,isJust,isNothing)
 
@@ -32,6 +33,7 @@ layout root = Layout {
 handlers :: DB.IConnection conn =>
     String -> conn -> ServerPartT IO Response
 handlers root dbh = msum [
+        rssHandler dbh,
         authHandlers dbh,
         adminHandlers (layout root) dbh,
         dir "about" $ methodSP GET $
