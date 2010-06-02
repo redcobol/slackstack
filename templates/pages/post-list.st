@@ -21,5 +21,27 @@ $posts:{
         </div>
         <hr />
         $ it.('body') $
+        
+        <p class="page-links">
+        
+        $if(it.('next_id'))$
+            $if(single)$
+                <a href="/posts/$ it.('next_id') $"
+                >&lt;--- $ it.('next_title') $</a> |
+            $else$
+                <a href="/browse/$ it.('next_timestamp') $">&lt;--- newer</a>
+            $endif$
+        $endif$
+        
+        $if(it.('prev_id'))$
+            $if(single)$
+                | <a href="/posts/$ it.('prev_id') $"
+                >$ it.('prev_title') $ ---&gt;</a>
+            $else$
+                <a href="/browse/$ it.('prev_timestamp') $">older ---&gt;</a>
+            $endif$
+        $endif$
+        
+        </p>
     </div>
 }$

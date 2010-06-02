@@ -46,8 +46,9 @@
 </p>
     
 <p>
-    I am a <a href="http://cs.uaf.edu/">computer science student</a>
-    at the University of Alaska, Fairbanks.
+    I studied <a href="http://cs.uaf.edu/">computer science</a>
+    at the University of Alaska, Fairbanks and might even get around to
+    doing that graduation paperwork sometime.
     
     I live in a poorly-insulated but cozy two-story building covered in chalk art
     a short walk or bike ride from campus.
@@ -55,10 +56,14 @@
 
 <p>
     Sometimes I draw pictures of robots.
+    Sometimes I build
+    <a href="http://www.flickr.com/photos/substack/4554294646/"
+    >actual robots</a>
     Other times I write
     <a href="http://codegolf.com/">terse</a>
     computer programs in
     <a href="http://haskell.org/">esoteric languages</a>.
+    
     I am easily amused.
 </p>
 
@@ -67,8 +72,7 @@
         <a href="http://github.com/substack">github</a>,
         <a href="http://www.plurk.com/substack">plurk</a>,
         <a href="http://www.flickr.com/photos/substack/">flickr</a>,
-        and irc.freenode.net/{##turtles,#perl-cats}
-            (among 20 or so other channels)
+        and irc.freenode.net.
     </ul>
 </p>
 
@@ -101,6 +105,20 @@
     >wacom bamboo medium</a> tablet.
 </p>
 
+<h1>About StackVM</h1>
+
+<p>
+    Lately, I've been teaming up with
+    <a href="http://catonmat.net/">Peteris Krumins</a>
+    across the VAST EXPANSES OF CYBERSPACE
+    to make virtual machines
+    <a href="http://github.com/substack/stackvm"
+    >just a little less terrible</a>.
+    
+    Soon enough, people will be able to embed virtual machines right into their
+    blogs to show off their crazy projects! Truly, when this occurs, we will be
+    officially living in the future.
+</p>
 <h1>About Sharing</h1>
 
 <p>

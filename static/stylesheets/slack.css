@@ -200,3 +200,7 @@ div.caption img {
     border-width: 1px;
     border-style: solid;
 }
+
+p.page-links {
+    text-align: center;
+}

@@ -3,7 +3,7 @@ module SlackStack.Handlers.Auth where
 import SlackStack.Util
 import Data.Maybe (fromJust,isNothing)
 import qualified SlackStack.Util.DB as DB
-import qualified Network.OpenID.Easy as ID
+import qualified Network.OpenID.Simple as ID
 
 import Happstack.Server
 import Data.ByteString.UTF8
@@ -22,7 +22,7 @@ authHandlers dbh = msum [
             
             host <- toString . fromJust <$> getHeaderM "Host"
             let returnTo = "http://" ++ host ++ "/openid"
-            session <- liftIO $ ID.auth ID.config identity returnTo
+            session <- liftIO $ ID.authenticate identity returnTo
             
             peerAddr <- fst <$> rqPeer <$> askRq
             liftIO $ do
@@ -33,7 +33,7 @@ authHandlers dbh = msum [
                     $ map DB.toSql [ sessionID, peerAddr, show session ]
                 DB.commit dbh
             
-            found (ID.sAuthURI session) $
+            found (ID.authURI session) $
                 toResponse "Forwarding to remote OpenID authority"
         ,
         dir "openid" $ do
@@ -57,18 +57,16 @@ authHandlers dbh = msum [
             let session = read $ DB.fromSql $ head $ fromJust mSession
             
             uri <- rqQuery <$> askRq
-            liftIO $ ID.verify ID.config session uri
-            
-            liftIO $ DB.run dbh
-                "delete from openid_sessions where id = ?"
-                [DB.toSql sessionID]
-            
-            liftIO $ DB.run dbh
-                "insert into sessions (id,addr,identity) values (?,?,?)"
-                [DB.toSql sessionID, DB.toSql peerAddr, DB.toSql identity]
-            
-            liftIO $ DB.commit dbh
-            
+            (=<< liftIO (ID.verify session uri)) $ \ok -> case ok of
+                Just err -> fail err
+                Nothing -> liftIO $ do
+                    DB.run dbh
+                        "delete from openid_sessions where id = ?"
+                        [DB.toSql sessionID]
+                    DB.run dbh
+                        "insert into sessions (id,addr,identity) values (?,?,?)"
+                        [DB.toSql sessionID, DB.toSql peerAddr, DB.toSql identity]
+                    DB.commit dbh
             found "/" $ toResponse "Forwarding to main page"
         ,
         do
