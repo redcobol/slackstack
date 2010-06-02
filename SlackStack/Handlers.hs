@@ -85,18 +85,20 @@ renderPosts layout dbh posts = do
                 else posts'
         ]
             
-withNextPrev :: DB.IConnection conn =>
-    conn -> [M.Map String DB.SqlValue] -> IO [M.Map String DB.SqlValue]
+withNextPrev :: DB.IConnection conn
+    => conn -> [M.Map String DB.SqlValue]
+    -> IO [M.Map String DB.SqlValue]
 withNextPrev _ [] = return []
 withNextPrev dbh posts = do
+    let dt = last posts M.! "timestamp"
     nexts <- map (M.mapKeys ("next_" ++)) <$> DB.rowMaps dbh
         "select id,title,timestamp from posts \
-        \where timestamp > ? order by timestamp desc limit 1"
-        [last posts M.! "timestamp"]
+        \where timestamp > ? order by timestamp asc limit 1 offset ?"
+        [dt, DB.toSql $ length posts - 1]
     prevs <- map (M.mapKeys ("prev_" ++)) <$> DB.rowMaps dbh
         "select id,title,timestamp from posts \
         \where timestamp < ? order by timestamp desc limit 1"
-        [last posts M.! "timestamp"]
+        [dt]
     return $ init posts ++ [(f nexts) . (f prevs) $ last posts] where
         f xs = case xs of
             [] -> id

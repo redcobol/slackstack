@@ -22,11 +22,13 @@ $posts:{
         <hr />
         $ it.('body') $
         
+        <p>
         $if(it.('next_id'))$
-            next!
+            next : $ it.('next_title') $
         $endif$
         $if(it.('prev_id'))$
-            prev!
+            prev : $ it.('prev_title') $
         $endif$
+        </p>
     </div>
 }$
