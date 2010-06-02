@@ -51,7 +51,7 @@ rssify post =
         f DB.SqlNull = ""
         f x = DB.fromSql x
         [pid,title,desc] = map (f . (post M.!))
-            $ words "id description title"
+            $ words "id title description"
 
 uri :: String -> URI
 uri = fromJust . parseURI
