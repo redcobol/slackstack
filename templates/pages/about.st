@@ -1,4 +1,4 @@
-<div style="float: left; margin-right: 2em;">
+<div style="float: left; margin-right: 2em; width: 330px">
     <img
         src="$ blogroot $/images/self.png"
         alt="self"
@@ -21,17 +21,7 @@
     You can send me 
     <a href="http://www.faqs.org/rfcs/rfc821.html"
     >electronic mail</a> by way of
-    <script type="text/javascript">
-        var names = "james halliday jhalliday jh jwh mail".split(/ /);
-        document.write(
-            names[Math.floor(Math.random() * names.length)]
-            + "@substack.net"
-        );
-    </script>
-    <noscript>
-        <a href="mail-to:mail@substack.net">mail@substack.net</a>
-    </noscript>
-    .
+    <a href="mail-to:mail@substack.net">mail@substack.net</a>.
 </p>
 
 <h1>About Me</h1>
