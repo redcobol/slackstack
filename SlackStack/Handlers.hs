@@ -48,10 +48,11 @@ handlers root dbh = msum [
         dir "browse" $ do
             let lastF xs = case xs of { [] -> ""; xs -> last xs }
             dateP <- lastF . rqPaths <$> askRq
+            let parseT f = parseTime defaultTimeLocale f dateP
             posts <- liftIO $ (withNextPrev dbh =<<)
-                $ case parseTime defaultTimeLocale "%F" dateP of
+                $ case parseT "%F %T" <|> parseT "%F" of
                     Nothing -> DB.rowMaps dbh
-                        "select * from posts order by timestamp desc limit 5" []
+                            "select * from posts order by timestamp desc limit 5" []
                     Just date -> DB.rowMaps dbh
                         "select * from posts where timestamp <= ?\
                         \order by timestamp desc limit 5"
@@ -78,11 +79,10 @@ renderPosts layout dbh posts = do
             where m' = M.map DB.sqlAsString m
         posts' = map mapper posts
     renderPage dbh layout "post-list" [
-            "posts" ==> if null posts'
-                then [ M.fromList [
-                        ("body","Nothing to see here. Move along.")
-                    ] ]
-                else posts'
+            "single" ==> length posts == 1,
+            "posts" ==> case posts' of
+                [] -> [M.fromList[("body","Nothing to see here. Move along.")]]
+                xs -> xs
         ]
             
 withNextPrev :: DB.IConnection conn
