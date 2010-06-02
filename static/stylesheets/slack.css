@@ -187,6 +187,11 @@ textarea.postbox {
     height: 24em;
 }
 
+textarea.descbox {
+    width: 50em;
+    height: 4em;
+}
+
 div.caption {
     background-color: rgb(50,50,50);
     color: white;

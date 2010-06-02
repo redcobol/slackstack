@@ -43,6 +43,7 @@ adminHandlers layout dbh =
                     renderPage dbh layout "admin-edit-post" [
                             "postID" ==> encodeHtml (postID :: String),
                             "postTitle" ==> encodeHtml (row M.! "title"),
+                            "postDesc" ==> encodeHtml (row M.! "description"),
                             "postBody" ==> encodeHtml (row M.! "body")
                        ]
                 ,
@@ -57,8 +58,9 @@ adminHandlers layout dbh =
 createNewPost :: DB.IConnection conn =>
     conn -> Layout -> ServerPartT IO Response
 createNewPost dbh layout = do
-    body <- DB.toSql <$> ("body" `lookDefault` "")
     title <- DB.toSql <$> ("title" `lookDefault` "")
+    description <- DB.toSql <$> ("description" `lookDefault` "")
+    body <- DB.toSql <$> ("body" `lookDefault` "")
     timestamp <- liftIO $ DB.toSql
         <$> formatTime defaultTimeLocale "%F %T"
         <$> getCurrentTime
@@ -68,9 +70,9 @@ createNewPost dbh layout = do
         postID' <- randHex 6
         DB.run dbh
             "insert into posts \
-                \ (id, title, timestamp, body) \
-                \ values (?,?,?,?)"
-            [DB.toSql postID', title, timestamp, body]
+                \ (id, title, timestamp, body, description) \
+                \ values (?,?,?,?,?)"
+            [DB.toSql postID', title, timestamp, body, description]
         return postID'
     liftIO $ DB.commit dbh
     
@@ -80,14 +82,15 @@ createNewPost dbh layout = do
 editPost :: DB.IConnection conn =>
     conn -> Layout -> ServerPartT IO Response
 editPost dbh layout = do
-    body <- DB.toSql <$> ("body" `lookDefault` "")
     title <- DB.toSql <$> ("title" `lookDefault` "")
+    description <- DB.toSql <$> ("description" `lookDefault` "")
+    body <- DB.toSql <$> ("body" `lookDefault` "")
     postID <- "postID" `lookDefault` ""
     
     liftIO $ do
         DB.run dbh
-            "update posts set title = ?, body = ? where id = ?"
-            [ title, body, DB.toSql postID ]
+            "update posts set title = ?, description = ?, body = ? where id = ?"
+            [ title, description, body, DB.toSql postID ]
         DB.commit dbh
     
     found (blogRoot layout ++ "/posts/" ++ postID) $

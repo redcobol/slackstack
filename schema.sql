@@ -2,7 +2,8 @@ create table posts (
     id char(6) unique primary key not null,
     title text,
     timestamp datetime,
-    body text
+    body text,
+    description text
 );
 
 create table categories (
