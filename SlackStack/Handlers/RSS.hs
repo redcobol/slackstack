@@ -20,7 +20,8 @@ import Text.Regex (mkRegex,subRegex)
 rssHandler :: DB.IConnection conn => conn -> ServerPartT IO Response
 rssHandler dbh = dir "rss" $ methodSP GET $ do
     posts <- liftIO $ DB.rowMaps dbh
-        "select id,title,description from posts" []
+        "select id,title,description from posts \
+        \order by timestamp desc" []
     
     return $ asContentType "application/rss+xml" $ toResponse
         $ RSS.showXML $ RSS.rssToXML $ rssFromPosts posts
