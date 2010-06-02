@@ -68,7 +68,8 @@ renderPosts layout dbh posts = do
                 else posts'
         ]
             
---withNextPrev :: IO ()
+withNextPrev :: DB.IConnection conn =>
+    conn -> [M.Map String DB.SqlValue] -> IO [M.Map String DB.SqlValue]
 withNextPrev _ [] = return []
 withNextPrev dbh posts = do
     nexts <- map (M.mapKeys ("next_" ++)) <$> DB.rowMaps dbh
