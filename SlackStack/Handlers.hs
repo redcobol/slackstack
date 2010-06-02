@@ -38,8 +38,25 @@ handlers root dbh = msum [
             --       '——————'--> pid
             pid <- DB.toSql <$> head <$> rqPaths <$> askRq
             posts <- liftIO $ DB.rowMaps dbh
-                "select * from posts where id = ?" [pid]
-            renderPosts (layout root) dbh posts
+                "select * from posts where id = ? limit 1" [pid]
+            
+            (nexts,prevs) <- case posts of
+                [] -> return ([],[])
+                _ -> liftIO $ do
+                    ns <- map (M.mapKeys ("next_" ++)) <$> DB.rowMaps dbh
+                        "select id,title from posts where timestamp > ? limit 1"
+                        [last posts M.! "timestamp"]
+                    ps <- map (M.mapKeys ("prev_" ++)) <$> DB.rowMaps dbh
+                        "select id,title from posts where timestamp < ? limit 1"
+                        [last posts M.! "timestamp"]
+                    return (ns,ps)
+            
+            renderPosts (layout root) dbh $ case posts of
+                [] -> []
+                _ -> init posts ++ [(f nexts) . (f prevs) $ last posts] where
+                    f xs = case xs of
+                        [] -> id
+                        [x] -> M.union x
         ,
         methodSP GET $ do
             posts <- liftIO $ DB.rowMaps dbh
