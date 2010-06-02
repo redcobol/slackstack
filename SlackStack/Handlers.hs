@@ -95,7 +95,7 @@ withNextPrev dbh posts = do
         [last posts M.! "timestamp"]
     prevs <- map (M.mapKeys ("prev_" ++)) <$> DB.rowMaps dbh
         "select id,title,timestamp from posts \
-        \where timestamp < ? order by timestamp asc limit 1"
+        \where timestamp < ? order by timestamp desc limit 1"
         [last posts M.! "timestamp"]
     return $ init posts ++ [(f nexts) . (f prevs) $ last posts] where
         f xs = case xs of
