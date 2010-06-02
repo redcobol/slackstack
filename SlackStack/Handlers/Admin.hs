@@ -38,13 +38,18 @@ adminHandlers layout dbh =
                         "select * from posts where id = ?"
                         [DB.toSql postID]
                     when (isNothing rowM) $ fail "No post by that id exists"
-                    let row = M.map DB.sqlAsString $ fromJust rowM
+                    let row = M.map f $ fromJust rowM
+                        fromRow x = if x `M.member` row
+                            then encodeHtml $ row M.! x
+                            else ""
+                        f DB.SqlNull = ""
+                        f x = DB.sqlAsString x
                     
                     renderPage dbh layout "admin-edit-post" [
                             "postID" ==> encodeHtml (postID :: String),
-                            "postTitle" ==> encodeHtml (row M.! "title"),
-                            "postDesc" ==> encodeHtml (row M.! "description"),
-                            "postBody" ==> encodeHtml (row M.! "body")
+                            "postTitle" ==> fromRow "title",
+                            "postDesc" ==> fromRow "description",
+                            "postBody" ==> fromRow "body"
                        ]
                 ,
                 dir "edit-post" $ methodSP POST $ editPost dbh layout,
