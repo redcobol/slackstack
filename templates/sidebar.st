@@ -28,5 +28,11 @@
         <p><a href="$ blogroot $/category/$ it $">$ it $</a></p>
     }$
     
+    <p>
+    <a href="/rss"
+    ><img src="/images/feed.png" width="20" height="20" alt="feed"></a>
+    <a href="/rss">rss</a>
+    </p>
+    
     </div>
 </div>
