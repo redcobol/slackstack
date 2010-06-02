@@ -17,6 +17,10 @@ import qualified Data.Map as M
 
 import Text.Regex
 
+import Data.Time.Clock (UTCTime(..))
+import Data.Time.Format (parseTime)
+import System.Locale (defaultTimeLocale)
+
 layout :: String -> Layout
 layout root = Layout {
     blogRoot = "",
@@ -36,13 +40,26 @@ handlers root dbh = msum [
         dir "posts" $ do
             -- /posts/3c0ff5/some-story-about-cabbage
             --       '——————'--> pid
-            pid <- DB.toSql <$> head <$> rqPaths <$> askRq
+            pid <- DB.toSql . head . rqPaths <$> askRq
             posts <- liftIO $ (withNextPrev dbh =<<) $ DB.rowMaps dbh
                 "select * from posts where id = ? limit 1" [pid]
             renderPosts (layout root) dbh posts
         ,
+        dir "browse" $ do
+            let lastF xs = case xs of { [] -> ""; xs -> last xs }
+            dateP <- lastF . rqPaths <$> askRq
+            posts <- liftIO $ (withNextPrev dbh =<<)
+                $ case parseTime defaultTimeLocale "%F" dateP of
+                    Nothing -> DB.rowMaps dbh
+                        "select * from posts order by timestamp desc limit 5" []
+                    Just date -> DB.rowMaps dbh
+                        "select * from posts where timestamp <= ?\
+                        \order by timestamp desc limit 5"
+                        [DB.toSql (date :: UTCTime)]
+            renderPosts (layout root) dbh posts
+        ,
         methodSP GET $ do
-            posts <- liftIO $ DB.rowMaps dbh
+            posts <- liftIO $ (withNextPrev dbh =<<) $ DB.rowMaps dbh
                 "select * from posts order by timestamp desc limit 5" []
             renderPosts (layout root) dbh posts
         ,
@@ -73,10 +90,12 @@ withNextPrev :: DB.IConnection conn =>
 withNextPrev _ [] = return []
 withNextPrev dbh posts = do
     nexts <- map (M.mapKeys ("next_" ++)) <$> DB.rowMaps dbh
-        "select id,title from posts where timestamp > ? limit 1"
+        "select id,title,timestamp from posts \
+        \where timestamp > ? order by timestamp desc limit 1"
         [last posts M.! "timestamp"]
     prevs <- map (M.mapKeys ("prev_" ++)) <$> DB.rowMaps dbh
-        "select id,title from posts where timestamp < ? limit 1"
+        "select id,title,timestamp from posts \
+        \where timestamp < ? order by timestamp asc limit 1"
         [last posts M.! "timestamp"]
     return $ init posts ++ [(f nexts) . (f prevs) $ last posts] where
         f xs = case xs of
