@@ -8,6 +8,8 @@
     <link rel="StyleSheet" type="text/css"
         href="$ blogRoot $/stylesheets/slack.css" />
     <link rel="icon" href="$ blogRoot $/images/favicon.png" type="image/png" />
+    <link rel="alternate" type="application/rss+xml"
+        href="/rss" title="The Universe of Discord" />
     <!-- being able to type "substack.net" into the openID login box is great -->
     <link rel="openid.server" href="http://www.myopenid.com/server" />
     <link rel="openid.delegate" href="http://substack.myopenid.com/" />
