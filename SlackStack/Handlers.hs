@@ -80,7 +80,12 @@ renderPosts layout dbh posts = do
         mapper m = M.insert "uri-title" (stripper $ m' M.! "title") m'
             where m' = M.map DB.sqlAsString m
         posts' = map mapper posts
-    renderPage dbh layout "post-list" [
+        mTitle = case posts of
+            [post] -> (:[]) . ("title" ==>)
+                $ (DB.sqlAsString $ post M.! "title")
+                    ++ " :: The Universe of Discord"
+            _ -> []
+    renderPage dbh layout "post-list" $ mTitle ++ [
             "single" ==> length posts == 1,
             "posts" ==> case posts' of
                 [] -> [M.fromList[("body","Nothing to see here. Move along.")]]
