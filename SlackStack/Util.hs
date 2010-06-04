@@ -170,12 +170,12 @@ renderPage dbh layout page attrList = do
         rendered = render $ attr pageT
         attr = foldl (.) id $ attrList ++ [
                 "blogRoot" ==> blogRoot layout,
+                "blogTitle" ==> "The Universe of Discord",
                 "categories" ==> categories,
                 "identity" ==> identity,
                 "isRoot" ==> level == Root,
                 "isAuthed" ==> isJust mIdentity,
-                "sessionID" ==> sessionID,
-                "title" ==> "The Universe of Discord"
+                "sessionID" ==> sessionID
             ]
         attr' = attr . ("content" ==> rendered)
     return $ asHTML $ toResponse $ render $ attr' layoutT

@@ -37,7 +37,9 @@ handlers root dbh = msum [
         authHandlers dbh,
         adminHandlers (layout root) dbh,
         dir "about" $ methodSP GET $
-            renderPage dbh (layout root) "about" []
+            renderPage dbh (layout root) "about" [
+                "title" ==> "About Me!"
+            ]
         ,
         dir "posts" $ do
             -- /posts/3c0ff5/some-story-about-cabbage
@@ -83,7 +85,6 @@ renderPosts layout dbh posts = do
         mTitle = case posts of
             [post] -> (:[]) . ("title" ==>)
                 $ (DB.sqlAsString $ post M.! "title")
-                    ++ " :: The Universe of Discord"
             _ -> []
     renderPage dbh layout "post-list" $ mTitle ++ [
             "single" ==> length posts == 1,
