@@ -23,26 +23,64 @@ $posts:{
         $ it.('body') $
         
         <hr>
-        <p class="page-links">
+        <div id="page-links">
         
-        $if(it.('next_id'))$
-            $if(single)$
-                <a href="/posts/$ it.('next_id') $"
-                >&lt;--- $ it.('next_title') $</a> |
-            $else$
-                <a href="/browse/$ it.('next_timestamp') $">&lt;--- newer</a> |
+            $if(it.('next_id'))$
+                <div>
+                    $if(single)$
+                        <a href="/posts/$ it.('next_id') $">
+                            <img src="/images/left.png"
+                                width="141" height="77">
+                        </a>
+                        <br>
+                        <a href="/posts/$ it.('next_id') $">
+                            <span>$ it.('next_title') $</span></a>
+                        </a>
+                    $else$
+                        <a href="/browse/$ it.('next_timestamp') $">
+                            <img src="/images/left.png"
+                                width="141" height="77">
+                        </a>
+                        <br>
+                        <a href="/browse/$ it.('next_timestamp') $">
+                            <span>newer</span>
+                        </a>
+                    $endif$
+                </div>
             $endif$
-        $endif$
-        
-        $if(it.('prev_id'))$
-            $if(single)$
-                | <a href="/posts/$ it.('prev_id') $"
-                >$ it.('prev_title') $ ---&gt;</a>
-            $else$
-                | <a href="/browse/$ it.('prev_timestamp') $">older ---&gt;</a>
+            
+            $if(it.('prev_id'))$
+                $if(single)$
+                    <div>
+                        <a href="/posts/$ it.('prev_id') $">
+                            <img src="/images/right.png"
+                                width="133" height="79">
+                        </a>
+                        <br>
+                        <a href="/posts/$ it.('prev_id') $">
+                            <span>$ it.('prev_title') $</span>
+                        </a>
+                    </div>
+                $else$
+                    <div>
+                        <a href="/browse/$ it.('prev_timestamp') $">
+                            <img src="/images/right.png"
+                                width="133" height="79">
+                        </a>
+                        <br>
+                        <a href="/browse/$ it.('prev_timestamp') $">
+                            <span>older</span>
+                        </a>
+                    </div>
+                $endif$
             $endif$
-        $endif$
+            
+            $if(it.('next_id'))$
+                <div class="spacer"></div>
+            $elseif(it.('prev_id'))$
+                <div class="spacer"></div>
+            $endif$
         
-        </p>
+        </div>
     </div>
 }$

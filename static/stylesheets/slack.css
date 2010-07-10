@@ -218,6 +218,23 @@ div.caption img {
     border-style: solid;
 }
 
-p.page-links {
+#page-links {
     text-align: center;
+    margin: auto;
+    width: 510px;
+}
+
+#page-links div {
+    width: 250px;
+    float: left;
+}
+
+#page-links div.spacer {
+    width: 1px;
+    height: 30px;
+    float: none;
+}
+
+#page-links div a img {
+    border-bottom-width: 0px;
 }
