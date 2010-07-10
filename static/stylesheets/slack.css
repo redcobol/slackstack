@@ -236,5 +236,6 @@ div.caption img {
 }
 
 #page-links div a img {
+    border-width: 0px;
     border-bottom-width: 0px;
 }
