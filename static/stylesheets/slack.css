@@ -68,9 +68,9 @@ img#robot {
 }
 
 #content div.post {
-    margin-right: 16em;
     margin-left: 2em;
     margin-bottom: 5em;
+    overflow: auto;
 }
 
 #content div.post code {
@@ -79,6 +79,7 @@ img#robot {
     display: block;
     padding-bottom: 1em;
     padding-left: 1em;
+    overflow: auto;
 }
 
 #content div.post span.title {
