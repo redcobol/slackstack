@@ -34,5 +34,15 @@
     <a href="/rss">rss</a>
     </p>
     
+    <hr />
+    
+    <div id="friends">
+        <p>Internet Friends</p>
+        <p><a href="http://catonmat.net">pkrumins</a></p>
+        <p><a href="http://jesusabdullah.github.com/">jesusabdullah</a></p>
+        <p><a href="http://podcats.in/training">Altreus</a></p>
+        <p><a href="http://simcop2387.info/">simcop2387</a></p>
+    </div>
+
     </div>
 </div>

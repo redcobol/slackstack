@@ -144,6 +144,18 @@ img#robot {
     margin-bottom: 0.5em;
 }
 
+#sidebar div#sidebar-links div#friends p {
+    font-size: 0.9em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#sidebar div#sidebar-links hr {
+    background-color: white;
+    border-width: 0px;
+    height: 2px;
+}
+
 #sidebar form#openid input[type="text"] {
     width: 10em;
 }
