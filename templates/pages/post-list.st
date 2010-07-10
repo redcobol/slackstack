@@ -34,7 +34,7 @@ $posts:{
                         </a>
                         <br>
                         <a href="/posts/$ it.('next_id') $">
-                            <span>$ it.('next_title') $</span></a>
+                            <span>$ it.('next_title') $</span>
                         </a>
                     $else$
                         <a href="/browse/$ it.('next_timestamp') $">
