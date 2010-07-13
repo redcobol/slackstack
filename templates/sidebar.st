@@ -23,6 +23,7 @@
     
     <p><a href="$ blogroot $/about">about</a></p>
     <p><a href="http://github.com/substack">code</a></p>
+    <p><a href="http://stackvm.com/">startup</a></p>
     
     $categories:{
         <p><a href="$ blogroot $/category/$ it $">$ it $</a></p>
