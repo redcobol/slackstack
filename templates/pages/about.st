@@ -71,6 +71,7 @@
     You can follow my wacky adventures on
         <a href="http://github.com/substack">github</a>,
         <a href="http://www.plurk.com/substack">plurk</a>,
+        <a href="http://www.twitter.com/substack">twitter</a>,
         <a href="http://www.flickr.com/photos/substack/">flickr</a>,
         and irc.freenode.net.
     </ul>
