@@ -17,10 +17,13 @@ import qualified Data.Map as M
 
 import Text.Regex (mkRegex,subRegex)
 
+import System.Time.ParseDate (parseCalendarTime)
+import System.Locale (defaultTimeLocale)
+
 rssHandler :: DB.IConnection conn => conn -> ServerPartT IO Response
 rssHandler dbh = dir "rss" $ methodSP GET $ do
     posts <- liftIO $ DB.rowMaps dbh
-        "select id,title,description from posts \
+        "select id,title,description,timestamp from posts \
         \order by timestamp desc" []
     
     return $ asContentType "application/rss+xml" $ toResponse
@@ -47,12 +50,17 @@ rssify post =
     : (RSS.Description desc)
     : (RSS.Link $ uri
         $ "http://substack.net/posts/" ++ pid ++ "/" ++ stripper title)
-    : []
+    : mDate
     where
         f DB.SqlNull = ""
         f x = DB.fromSql x
-        [pid,title,desc] = map (f . (post M.!))
-            $ words "id title description"
+        [pid,title,desc,timestamp] = map (f . (post M.!))
+            $ words "id title description timestamp"
+        format = "%Y-%m-%d %H:%M:%S"
+        locale = defaultTimeLocale
+        mDate = case parseCalendarTime locale format timestamp of
+            Just d -> [ RSS.PubDate d ]
+            Nothing -> []
 
 uri :: String -> URI
 uri = fromJust . parseURI
